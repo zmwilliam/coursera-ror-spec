@@ -1,4 +1,6 @@
 class Racer
+  include ActiveModel::Model
+
   attr_accessor :id, :number, :first_name, :last_name, :gender, :group, :secs
 
   def self.mongo_client
@@ -19,6 +21,25 @@ class Racer
   def self.find(id)
     result = collection.find(_id: BSON::ObjectId(id.to_s)).first
     return result.nil? ? nil : Racer.new(result)
+  end
+
+  def self.paginate(params)
+    page = (params[:page] || 1).to_i
+    limit=(params[:per_page] || 30).to_i
+    skip=(page-1)*limit
+    racers = []
+
+    found = collection.find()
+      .skip(skip)
+      .limit(limit)
+
+    total = found.count
+    found.each {|r| racers << Racer.new(r)}
+
+    WillPaginate::Collection.create(page, limit, total) do |pager|
+      pager.replace(racers)
+    end
+
   end
 
   def initialize(params={})
@@ -59,6 +80,18 @@ class Racer
     self.class.collection
       .find(_id: BSON::ObjectId(@id))
       .delete_one
+  end
+
+  def persisted?
+    !@id.nil?
+  end
+
+  def created_at
+    nil
+  end
+
+  def updated_at
+    nil
   end
 
 end

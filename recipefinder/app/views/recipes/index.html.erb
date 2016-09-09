@@ -1,0 +1,19 @@
+<% if @recipes %>
+  <h1> Searching for <%= @search_term %> </h1>
+  <table border="1">
+    <tr>
+      <th>Image</th>
+      <th>Title</th>
+      <th>Social Rank</th>
+    </tr>
+    <% @recipes.each do |r| %>
+      <tr>
+        <td><%= link_to(image_tag(r["image_url"], size: "100x100"), r["source_url"]) %></td>
+        <td><%= link_to(r["title"].html_safe, r["source_url"]) %></td>
+        <td><%= '%.2f' % r["social_rank"] %></td>
+      </tr>
+    <% end %>
+  </table>
+<% else %>
+  <h1> nothing to show </h2>
+<% end %>
